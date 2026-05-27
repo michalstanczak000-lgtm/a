@@ -177,7 +177,6 @@
             border-radius: 12px; outline: none; box-shadow: var(--glow); font-family: monospace;
         }
 
-        /* Styl Ekranu Ładowania (Loading Screen) */
         #loading-screen {
             display: none; flex-direction: column; align-items: center; justify-content: center;
             position: absolute; width: 100%; height: 100%; background: #08090f; z-index: 20;
@@ -403,7 +402,7 @@
             osc.start();
             osc.stop(audioCtx.currentTime + 0.25);
             step++;
-        }, 250); // 120 BPM
+        }, 250);
     }
 
     function stopBackgroundMusic() {
@@ -464,11 +463,10 @@
         setTimeout(() => { statusAlert.style.display = 'none'; }, 1800);
     }
 
-    // Wywołanie Sekwencji Loading Screenu i włączenia filmu na YT
     function startFinalLoading() {
         audioControls.style.display = 'none';
         loadingScreen.style.display = 'flex';
-        setPanelInfo("LAB-OS", "Desynchronizacja", "Trwa przekierowanie strumienia neuro-optycznego do bazy danych.");
+        setPanelInfo("LAB-OS", "Przekierowanie", "Trwa opuszczanie środowiska testowego...");
 
         let progress = 0;
         let loadInterval = setInterval(() => {
@@ -476,14 +474,16 @@
             if (progress >= 100) {
                 progress = 100;
                 clearInterval(loadInterval);
-                loadStatus.innerText = "POŁĄCZENIE ZABEZPIECZONE! URUCHAMIANIE...";
+                loadStatus.innerText = "OTWIERANIE FILMU...";
+                
                 setTimeout(() => {
-                    window.open('https://www.youtube.com/watch?v=F0BxpGnPX5g', '_blank');
-                }, 500);
+                    // Zmiana całej strony na adres filmu w tej samej karcie
+                    window.location.href = "https://www.youtube.com/watch?v=F0BxpGnPX5g";
+                }, 400);
             }
             loadFill.style.width = progress + "%";
-            loadStatus.innerText = `POSTĘP REKONFIGURACJI: ${progress}%`;
-        }, 60);
+            loadStatus.innerText = `PRZYGOTOWANIE ADRESU: ${progress}%`;
+        }, 50);
     }
 
     function triggerGameSuccess() {
@@ -500,7 +500,6 @@
                 actionBtn.innerText = "KONTYNUUJ PROCEDURĘ";
                 previewNextPanelInfo();
             } else {
-                // Jeśli ukończono ostatnią grę, włączamy ekran ładowania
                 startFinalLoading();
             }
         }, 1800);
@@ -531,7 +530,7 @@
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
         gameDuration = 45; timeStart = Date.now(); gameActive = true;
-        startBackgroundMusic(); // 120 BPM
+        startBackgroundMusic();
 
         const grid = 20; const arenaW = 400; const arenaH = 400;
         const arenaX = (canvas.width - arenaW) / 2;
@@ -686,7 +685,7 @@
             if (keys['ArrowRight'] && paddleX < canvas.width - paddleW - 15) paddleX += 9;
 
             if (bonusItem) {
-                bonusItem.y += bonusItem.vy; // Grawitacja bonusu
+                bonusItem.y += bonusItem.vy;
                 if (bonusItem.y + bonusItem.radius >= paddleY && bonusItem.y - bonusItem.radius <= paddleY + paddleH && bonusItem.x >= paddleX && bonusItem.x <= paddleX + paddleW) {
                     balls.push({ x: paddleX + paddleW / 2, y: paddleY - 15, dx: -4, dy: -5, radius: 9, isBonus: true });
                     bonusItem = null;
