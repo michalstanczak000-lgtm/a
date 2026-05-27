@@ -134,7 +134,6 @@
         #timer-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); transition: width 0.1s linear; }
         #timer-text { font-weight: 700; font-family: 'Courier New', monospace; font-size: 18px; width: 50px; text-align: right; color: #ff4757; }
 
-        /* Kontrola Audio w grze */
         #audio-controls {
             position: absolute; bottom: 12px; right: 20px;
             display: none; align-items: center; gap: 10px;
@@ -173,10 +172,21 @@
         }
         #math-question { font-size: 48px; font-weight: 800; margin-bottom: 25px; color: var(--accent-color); text-shadow: 0 0 20px rgba(0,255,204,0.4); font-family: monospace; text-align: center; word-break: break-all; }
         #math-input {
-            font-size: 32px; padding: 10px 20px; width: 260px; text-align: center;
+            font-size: 24px; padding: 10px 20px; width: 320px; text-align: center;
             background: #090b11; color: var(--text-color); border: 2px solid var(--accent-color);
             border-radius: 12px; outline: none; box-shadow: var(--glow); font-family: monospace;
         }
+
+        /* Styl Ekranu Ładowania (Loading Screen) */
+        #loading-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; width: 100%; height: 100%; background: #08090f; z-index: 20;
+        }
+        .load-title { font-size: 24px; font-weight: 800; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 5px; text-transform: uppercase; }
+        .load-subtitle { font-size: 12px; opacity: 0.5; margin-bottom: 30px; letter-spacing: 1px; }
+        .load-bar-bg { width: 300px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; position: relative; }
+        .load-bar-fill { width: 0%; height: 100%; background: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); transition: width 0.05s linear; }
+        .load-status { font-family: monospace; font-size: 11px; margin-top: 15px; color: var(--accent-color); opacity: 0.8; }
 
         .btn {
             padding: 16px 40px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
@@ -241,10 +251,17 @@
 
             <div id="math-ui">
                 <div id="math-box">
-                    <div id="math-stage" style="font-size:14px; font-weight:700; letter-spacing: 2px; opacity:0.5; margin-bottom:10px; text-transform:uppercase;">Sekwencja 1 / 10</div>
-                    <div id="math-question">0 + 0</div>
+                    <div id="math-stage" style="font-size:14px; font-weight:700; letter-spacing: 2px; opacity:0.5; margin-bottom:10px; text-transform:uppercase;"></div>
+                    <div id="math-question"></div>
                     <input type="text" id="math-input" autocomplete="off">
                 </div>
+            </div>
+
+            <div id="loading-screen">
+                <div class="load-title">Dekodowanie Transmisji</div>
+                <div class="load-subtitle">Uzyskiwanie dostępu do zabezpieczonego strumienia danych...</div>
+                <div class="load-bar-bg"><div id="load-fill" class="load-bar-fill"></div></div>
+                <div id="load-status" class="load-status">POSTĘP: 0%</div>
             </div>
 
             <div id="menu-screen" class="screen">
@@ -277,6 +294,10 @@
     const mathInput = document.getElementById('math-input');
     const mathStage = document.getElementById('math-stage');
 
+    const loadingScreen = document.getElementById('loading-screen');
+    const loadFill = document.getElementById('load-fill');
+    const loadStatus = document.getElementById('load-status');
+
     const pNumber = document.getElementById('panel-game-number');
     const pTitle = document.getElementById('panel-game-title');
     const pDesc = document.getElementById('panel-game-desc');
@@ -292,14 +313,12 @@
     let gameActive = false;
     let keys = {};
 
-    // Kontrola głośności globalnej
     let globalVolume = 0.3;
     volumeSlider.addEventListener('input', (e) => {
         globalVolume = parseFloat(e.target.value);
         if (musicGainNode) musicGainNode.gain.setValueAtTime(globalVolume * 0.4, audioCtx.currentTime);
     });
 
-    // Web Audio API - Silnik Dźwięku i Muzyki
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let musicInterval = null;
     let musicGainNode = null;
@@ -331,9 +350,9 @@
             gain.gain.setValueAtTime(globalVolume * 0.6, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.06);
             osc.start(); osc.stop(audioCtx.currentTime + 0.06);
-        } else if (type === 'bonus') { // Złapanie kulki bonusowej
-            osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-            osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.2); // D6
+        } else if (type === 'bonus') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.2);
             gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
             osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         } else if (type === 'success') {
@@ -351,7 +370,6 @@
         }
     }
 
-    // Generator muzyki w tle (Cyber Synth Bassline)
     function startBackgroundMusic() {
         if (musicInterval) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -360,7 +378,7 @@
         musicGainNode.connect(audioCtx.destination);
         musicGainNode.gain.setValueAtTime(globalVolume * 0.4, audioCtx.currentTime);
 
-        const notes = [73.42, 73.42, 82.41, 73.42, 98.00, 87.31, 73.42, 65.41]; // D2, E2, G2, F2...
+        const notes = [73.42, 73.42, 82.41, 73.42, 98.00, 87.31, 73.42, 65.41];
         let step = 0;
 
         musicInterval = setInterval(() => {
@@ -371,7 +389,6 @@
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(notes[step % notes.length], audioCtx.currentTime);
             
-            // Filtr dolnoprzepustowy nadający mroczny klimat
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(400, audioCtx.currentTime);
@@ -447,6 +464,28 @@
         setTimeout(() => { statusAlert.style.display = 'none'; }, 1800);
     }
 
+    // Wywołanie Sekwencji Loading Screenu i włączenia filmu na YT
+    function startFinalLoading() {
+        audioControls.style.display = 'none';
+        loadingScreen.style.display = 'flex';
+        setPanelInfo("LAB-OS", "Desynchronizacja", "Trwa przekierowanie strumienia neuro-optycznego do bazy danych.");
+
+        let progress = 0;
+        let loadInterval = setInterval(() => {
+            progress += Math.floor(Math.random() * 3) + 1;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadInterval);
+                loadStatus.innerText = "POŁĄCZENIE ZABEZPIECZONE! URUCHAMIANIE...";
+                setTimeout(() => {
+                    window.open('https://www.youtube.com/watch?v=F0BxpGnPX5g', '_blank');
+                }, 500);
+            }
+            loadFill.style.width = progress + "%";
+            loadStatus.innerText = `POSTĘP REKONFIGURACJI: ${progress}%`;
+        }, 60);
+    }
+
     function triggerGameSuccess() {
         gameActive = false; clearInterval(gameInterval); stopBackgroundMusic();
         playSound('success');
@@ -461,11 +500,8 @@
                 actionBtn.innerText = "KONTYNUUJ PROCEDURĘ";
                 previewNextPanelInfo();
             } else {
-                menuScreen.style.display = 'flex'; audioControls.style.display = 'none';
-                menuTitle.innerText = "GRATULACJE! UKOŃCZYŁEŚ GRĘ!";
-                menuTitle.style.color = "#00ffcc";
-                menuSubtitle.innerText = "Wszystkie testy sprawności synaptycznej zostały zaliczone z wyróżnieniem. System medyczny działa w pełni stabilnie.";
-                actionBtn.style.display = 'none';
+                // Jeśli ukończono ostatnią grę, włączamy ekran ładowania
+                startFinalLoading();
             }
         }, 1800);
     }
@@ -488,15 +524,14 @@
         if(currentGameIndex === 3) setPanelInfo("Test 04", "Kalibracja Synaps", "Wprowadź poprawne sumy kontrolne dla algorytmów. Uwaga na ostatni etap przeciążenia!", {"Zatwierdzenie": "Klawisz ENTER"});
     }
 
-    // =========================================================================
-    // 1. MINIGRA: SNAKE
-    // =========================================================================
+    setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Steruj mikro-sondą medyczną w ograniczonej barierze tkankowej. Zgromadź 8 bio-kapsułek.", {"Poruszanie": "Strzałki klawiatury"});
+
     function playSnake() {
         setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Obszar operacyjny został zawężony. Zgromadź 8 kapsułek wewnątrz wyznaczonej strefy laboratoryjnej.", {"Poruszanie": "Strzałki"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
         gameDuration = 45; timeStart = Date.now(); gameActive = true;
-        startBackgroundMusic();
+        startBackgroundMusic(); // 120 BPM
 
         const grid = 20; const arenaW = 400; const arenaH = 400;
         const arenaX = (canvas.width - arenaW) / 2;
@@ -559,9 +594,6 @@
         }, 1000/60);
     }
 
-    // =========================================================================
-    // 2. MINIGRA: KABELKI
-    // =========================================================================
     function playWires() {
         setPanelInfo("Test 02", "Mostkowanie Światłowodów", "Połącz porty. Krytyczny czas operacji skrócony do 15 sekund!", {"Połączenie": "Przeciągaj Mysz"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
@@ -624,9 +656,6 @@
         }, 1000/60);
     }
 
-    // =========================================================================
-    // 3. MINIGRA: PADDLE (3 poziomy bloków + Drop Multiball Kulki po 3 rozbiciach)
-    // =========================================================================
     function playPaddle() {
         setPanelInfo("Test 03", "Ekstrakcja Bakterii", "Rozbij 3 warstwy bloków. Po zniszczeniu 3 klocków złap spadający fioletowy rdzeń, by zyskać DRUGĄ KULKĘ!", {"Sterowanie": "Strzałki ← / →"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
@@ -635,15 +664,10 @@
         startBackgroundMusic();
 
         let paddleW = 140, paddleH = 16; let paddleX = (canvas.width - paddleW) / 2; let paddleY = canvas.height - 50;
-        
-        // Tablica przechowująca aktywne kulki
         let balls = [{ x: canvas.width / 2, y: canvas.height - 120, dx: 4, dy: -5, radius: 9, isBonus: false }];
-        
-        // Zmienne obsługujące spadający bonus multiball
         let destroyedCount = 0;
-        let bonusItem = null; // {x, y, vy, radius}
+        let bonusItem = null;
 
-        // 3 RZĘDY (POZIOMY) BLOKÓW
         let rows = 3, cols = 6; let blockW = 110, blockH = 24; let padding = 14;
         let offsetTop = 85; let offsetLeft = (canvas.width - (cols * (blockW + padding) - padding)) / 2;
         let bricks = [];
@@ -658,47 +682,39 @@
         gameInterval = setInterval(() => {
             updateTimer(); if(!gameActive) return;
             
-            // Sterowanie paletką
             if (keys['ArrowLeft'] && paddleX > 15) paddleX -= 9;
             if (keys['ArrowRight'] && paddleX < canvas.width - paddleW - 15) paddleX += 9;
 
-            // Obsługa spadającego bonusu
             if (bonusItem) {
-                bonusItem.y += bonusItem.vy;
-                // Kolizja z paletką -> Aktywacja drugiej kulki!
+                bonusItem.y += bonusItem.vy; // Grawitacja bonusu
                 if (bonusItem.y + bonusItem.radius >= paddleY && bonusItem.y - bonusItem.radius <= paddleY + paddleH && bonusItem.x >= paddleX && bonusItem.x <= paddleX + paddleW) {
                     balls.push({ x: paddleX + paddleW / 2, y: paddleY - 15, dx: -4, dy: -5, radius: 9, isBonus: true });
                     bonusItem = null;
                     playSound('bonus');
                 } else if (bonusItem.y > canvas.height) {
-                    bonusItem = null; // Przepadło
+                    bonusItem = null;
                 }
             }
 
-            // Pętla fizyki dla wszystkich aktywnych kulek
             for (let i = balls.length - 1; i >= 0; i--) {
                 let b = balls[i];
                 b.x += b.dx; b.y += b.dy;
 
-                // Odbicia od ścian bocznych i sufitu
                 if (b.x + b.radius > canvas.width - 15 || b.x - b.radius < 15) { b.dx = -b.dx; playSound('paddle'); }
                 if (b.y - b.radius < 55) { b.dy = -b.dy; playSound('paddle'); }
 
-                // Spadek poza dolną krawędź planszy
                 if (b.y + b.radius > canvas.height - 15) {
                     balls.splice(i, 1);
                     if (balls.length === 0) { triggerGameOver("Wszystkie bio-rdzenie zostały utracone!"); return; }
                     continue;
                 }
 
-                // Odbicie od paletki
                 if (b.y + b.radius >= paddleY && b.y - b.radius <= paddleY + paddleH && b.x >= paddleX && b.x <= paddleX + paddleW) {
                     b.dy = -Math.abs(b.dy);
                     b.dx = 8 * ((b.x - (paddleX + paddleW/2)) / (paddleW/2));
                     playSound('paddle');
                 }
 
-                // Kolizje z blokami
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
                         let brick = bricks[r][c];
@@ -708,7 +724,6 @@
                                 destroyedCount++;
                                 playSound('hit');
 
-                                // NOWOŚĆ: Po zniszczeniu dokładnie 3 bloków, generuj spadający bonus!
                                 if (destroyedCount === 3) {
                                     bonusItem = { x: brick.x + blockW / 2, y: brick.y + blockH, vy: 2.5, radius: 10 };
                                 }
@@ -718,45 +733,38 @@
                 }
             }
 
-            // Sprawdzenie warunku zwycięstwa (czy wszystkie klocki zbite)
             let allDestroyed = true;
             for(let r=0; r<rows; r++) {
                 for(let c=0; c<cols; c++) { if(bricks[r][c].status === 1) allDestroyed = false; }
             }
             if(allDestroyed) { triggerGameSuccess(); return; }
 
-            // RENDEROWANIE PLANSZY
             ctx.fillStyle = "#0c101b"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             scoreUi.innerText = `Ekstrakcja: Zniszczone blokady: ${destroyedCount} / ${rows*cols}`;
 
-            // Ramka pola gry
             ctx.lineWidth = 2; ctx.strokeStyle = "#1e293b"; ctx.strokeRect(15, 55, canvas.width - 30, canvas.height - 70);
 
-            // Rysowanie paletki
             ctx.fillStyle = "#00ffcc"; ctx.fillRect(paddleX, paddleY, paddleW, paddleH);
             ctx.fillStyle = "#ffffff"; ctx.fillRect(paddleX, paddleY, paddleW, 3);
 
-            // Rysowanie spadającego bonusu (Multiball)
             if (bonusItem) {
                 ctx.fillStyle = "#9b59b6"; ctx.beginPath(); ctx.arc(bonusItem.x, bonusItem.y, bonusItem.radius, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = "#ffffff"; ctx.font = "10px sans-serif"; ctx.fillText("x2", bonusItem.x - 5, bonusItem.y + 3);
             }
 
-            // Rysowanie aktywnych kulek
             balls.forEach(b => {
                 ctx.fillStyle = b.isBonus ? "#9b59b6" : "#ffffff";
                 ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
                 ctx.lineWidth = 2; ctx.strokeStyle = b.isBonus ? "#ff69b4" : "#00b0ff"; ctx.stroke();
             });
 
-            // Rysowanie 3 warstw bloków z różnymi neonowymi kolorami
             for(let r=0; r<rows; r++) {
                 for(let c=0; c<cols; c++) {
                     let b = bricks[r][c];
                     if(b.status === 1) {
-                        let baseColor = "#00ffcc"; // Domyślny (dolny)
-                        if (b.row === 0) baseColor = "#ff4757"; // Górny rząd
-                        if (b.row === 1) baseColor = "#9b59b6"; // Środkowy rząd
+                        let baseColor = "#00ffcc";
+                        if (b.row === 0) baseColor = "#ff4757";
+                        if (b.row === 1) baseColor = "#9b59b6";
                         
                         ctx.fillStyle = baseColor; ctx.fillRect(b.x, b.y, blockW, blockH);
                         ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillRect(b.x, b.y, blockW, 2);
@@ -766,9 +774,6 @@
         }, 1000/60);
     }
 
-    // =========================================================================
-    // 4. MINIGRA: MATEMATYKA
-    // =========================================================================
     function playMath() {
         setPanelInfo("Test 04", "Kalibracja Synaps", "Zatwierdź sumy kontrolne algorytmu. Przejdź wszystkie 10 poziomów.", {"Zatwierdzenie": "ENTER"});
         mathUi.style.display = 'flex'; topBar.style.display = 'flex';
@@ -781,6 +786,7 @@
         function generateTask() {
             mathInput.value = "";
             if (currentTaskNum === 10) {
+                mathInput.placeholder = "Kalibracja Synaps";
                 mathQuestion.style.fontSize = "22px";
                 mathQuestion.innerText = "√(" + Math.floor(Math.random()*999+100) + "³ * π) / sin(" + Math.floor(Math.random()*89+10) + "°) + ln(∑[x=1→∞] " + Math.floor(Math.random()*50) + "x / (" + Math.floor(Math.random()*15+2) + "x! - " + Math.floor(Math.random()*100) + ")) * 💻_OVERLOAD_ERROR_☠️";
                 mathStage.innerText = `KRYTYCZNE PRZECIĄŻENIE RDZENIA: 10 / 10`;
@@ -790,6 +796,16 @@
             mathQuestion.style.fontSize = "48px";
             const ops = ['+', '-', '*']; const op = ops[Math.floor(Math.random() * ops.length)];
             let a, b;
+            let currentTitle = "";
+            if (currentTaskNum <= 3) {
+                currentTitle = "Sonda Kapsułkowa 3D";
+            } else if (currentTaskNum <= 6) {
+                currentTitle = "Mostkowanie Światłowodów";
+            } else {
+                currentTitle = "Ekstrakcja Bakterii";
+            }
+            mathInput.placeholder = currentTitle;
+
             if(op === '+') { a = Math.floor(Math.random() * 45) + 15; b = Math.floor(Math.random() * 45) + 15; currentAnswer = a + b; }
             else if(op === '-') { a = Math.floor(Math.random() * 70) + 30; b = Math.floor(Math.random() * 25) + 5; currentAnswer = a - b; }
             else { a = Math.floor(Math.random() * 8) + 3; b = Math.floor(Math.random() * 7) + 3; currentAnswer = a * b; }
