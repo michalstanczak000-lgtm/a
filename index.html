@@ -345,11 +345,11 @@
                 actionBtn.innerText = "KONTYNUUJ PROCEDURĘ";
                 previewNextPanelInfo();
             } else {
-                // EKRAN KOŃCOWY - GRATULACJE (TU POTEM DODAMY FILM Z YT)
+                // EKRAN KOŃCOWY - CZYSTE GRATULACJE (TU BĘDZIE MOŻNA WKLEIĆ LINK)
                 menuScreen.style.display = 'flex';
                 menuTitle.innerText = "GRATULACJE! UKOŃCZYŁEŚ GRĘ!";
                 menuTitle.style.color = "#00ffcc";
-                menuSubtitle.innerText = "Wszystkie testy sprawności synaptycznej zostały zaliczone z wyróżnieniem. System działa stabilnie.";
+                menuSubtitle.innerText = "Wszystkie testy sprawności synaptycznej zostały zaliczone z wyróżnieniem. System medyczny działa w pełni stabilnie.";
                 actionBtn.style.display = 'none';
             }
         }, 1800);
@@ -376,10 +376,10 @@
     setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Steruj mikro-sondą medyczną o wzmocnionej strukturze 3D. Zgromadź bio-kapsułki rozlokowane na siatce laboratoryjnej.", {"Poruszanie": "Strzałki klawiatury"});
 
     // =========================================================================
-    // 1. MINIGRA: SNAKE (Więcej punktów: 8)
+    // 1. MINIGRA: SNAKE (Wymagane 8 punktów, czas 45s)
     // =========================================================================
     function playSnake() {
-        setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Wąż zyskał sferyczną formę 3D, cienie oraz świecące receptory wzrokowe. Musisz zdobyć 8 kapsułek.", {"Poruszanie": "Strzałki"});
+        setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Sonda medyczna zyskała sferyczną formę 3D, cienie oraz świecące receptory wzrokowe. Musisz zebrać 8 bio-kapsułek.", {"Poruszanie": "Strzałki"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
         gameDuration = 45; timeStart = Date.now(); gameActive = true;
@@ -387,7 +387,7 @@
         const grid = 20;
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
         let dx = grid, dy = 0;
-        let score = 0; const target = 8; // ZWIĘKSZONO DO 8 PUNKTÓW
+        let score = 0; const target = 8;
 
         function spawnCapsule() {
             let cols = Math.floor(canvas.width / grid);
@@ -470,15 +470,15 @@
     }
 
     // =========================================================================
-    // 2. MINIGRA: KABELKI (Więcej połączeń: 6 zamiast 4)
+    // 2. MINIGRA: KABELKI (Rozbudowano do 6 portów, czas 20s)
     // =========================================================================
     function playWires() {
-        setPanelInfo("Test 02", "Mostkowanie Światłowodów", "Połącz porty generujące zbieżne sygnały. Zwiększono liczbę gniazd do 6.", {"Połączenie": "Przeciągaj Mysz"});
+        setPanelInfo("Test 02", "Mostkowanie Światłowodów", "Połącz porty generujące zbieżne sygnały. Skonfiguruj wszystkie 6 obwodów.", {"Połączenie": "Przeciągaj Mysz"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
         gameDuration = 20; timeStart = Date.now(); gameActive = true;
 
-        // ZWIĘKSZONO DO 6 KOLORÓW I KANJI
+        // Rozszerzona baza do 6 kolorów
         const wireData = [
             { color: "#ff4757", kanji: "赤" }, { color: "#2ecc71", kanji: "緑" },
             { color: "#1e90ff", kanji: "青" }, { color: "#ffa500", kanji: "橙" },
@@ -488,7 +488,7 @@
         for (let i = leftSide.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [leftSide[i], leftSide[j]] = [leftSide[j], leftSide[i]]; }
         for (let i = rightSide.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rightSide[i], rightSide[j]] = [rightSide[j], rightSide[i]]; }
 
-        // Odpowiednio zagęszczony rozstaw Y na ekranie (skok o 75 zamiast 115)
+        // Przebudowane Y, żeby 6 portów ładnie się mieściło (start: 90px, odstęp: 78px)
         let leftNodes = leftSide.map((d, i) => ({x: 130, y: 90 + i*78, color: d.color, kanji: d.kanji, id: i}));
         let rightNodes = rightSide.map((d, i) => ({x: 685, y: 90 + i*78, color: d.color, kanji: d.kanji, id: i}));
         let connections = []; let selectedNode = null; let mouseX = 0, mouseY = 0;
@@ -648,7 +648,7 @@
     }
 
     // =========================================================================
-    // 4. MINIGRA: MATEMATYKA (Zwiększono do 7 zadań!)
+    // 4. MINIGRA: MATEMATYKA (Zwiększono do 7 zadań)
     // =========================================================================
     function playMath() {
         setPanelInfo("Test 04", "Kalibracja Synaps", "Zatwierdź sumy kontrolne algorytmu synaptycznego.", {"Zatwierdzenie": "ENTER"});
@@ -657,7 +657,7 @@
         mathInput.value = ""; mathInput.focus();
 
         let currentTaskNum = 1; let currentAnswer = 0;
-        const totalTasks = 7; // ZWIĘKSZONO LICZBĘ ZADAŃ DO 7
+        const totalTasks = 7; // NOWA LICZBA ZADAŃ: 7
 
         function generateTask() {
             const ops = ['+', '-', '*']; const op = ops[Math.floor(Math.random() * ops.length)];
