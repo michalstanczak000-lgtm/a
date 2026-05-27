@@ -200,7 +200,7 @@
                 <div class="ins-header">Polecenia mapowania</div>
                 <ul class="controls-list" id="panel-controls-list"></ul>
             </div>
-            <div style="font-size: 11px; opacity: 0.3; font-family: monospace; letter-spacing: 1px;">LAB-OS v3.0.4 // 2026</div>
+            <div style="font-size: 11px; opacity: 0.3; font-family: monospace; letter-spacing: 1px;">LAB-OS v3.0.5 // 2026</div>
         </div>
 
         <div id="game-container">
@@ -230,7 +230,7 @@
 
             <div id="math-ui">
                 <div id="math-box">
-                    <div id="math-stage" style="font-size:14px; font-weight:700; letter-spacing: 2px; opacity:0.5; margin-bottom:10px; text-transform:uppercase;">Sekwencja 1 / 3</div>
+                    <div id="math-stage" style="font-size:14px; font-weight:700; letter-spacing: 2px; opacity:0.5; margin-bottom:10px; text-transform:uppercase;">Sekwencja 1 / 7</div>
                     <div id="math-question">0 + 0</div>
                     <input type="number" id="math-input" autocomplete="off">
                 </div>
@@ -270,7 +270,6 @@
     const pCtrlBox = document.getElementById('panel-controls-box');
     const pCtrlList = document.getElementById('panel-controls-list');
 
-    const GITHUB_URL = "https://github.com";
     const gamesList = [playSnake, playWires, playPaddle, playMath];
     let currentGameIndex = 0;
     
@@ -346,15 +345,12 @@
                 actionBtn.innerText = "KONTYNUUJ PROCEDURĘ";
                 previewNextPanelInfo();
             } else {
+                // EKRAN KOŃCOWY - GRATULACJE (TU POTEM DODAMY FILM Z YT)
                 menuScreen.style.display = 'flex';
-                menuTitle.innerText = "INTEGRACJA ZAKOŃCZONA SUKCESEM";
-                menuSubtitle.innerText = "Wszystkie systemy działają w trybie optymalnym. Repozytorium danych zostało odblokowane.";
+                menuTitle.innerText = "GRATULACJE! UKOŃCZYŁEŚ GRĘ!";
+                menuTitle.style.color = "#00ffcc";
+                menuSubtitle.innerText = "Wszystkie testy sprawności synaptycznej zostały zaliczone z wyróżnieniem. System działa stabilnie.";
                 actionBtn.style.display = 'none';
-                let oldA = document.getElementById('git-btn'); if(oldA) oldA.remove();
-                let a = document.createElement('a');
-                a.id = "git-btn"; a.href = GITHUB_URL; a.target = "_blank"; a.className = "btn";
-                a.innerText = "ZOBACZ REPOZYTORIUM GITHUB";
-                menuScreen.appendChild(a);
             }
         }, 1800);
     }
@@ -377,21 +373,21 @@
     }
 
     // Startowe info
-    setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Steruj mikro-sondą medyczną o wzmocnionej strukturze 3D. Zgromadź 3 bio-kapsułki rozlokowane na siatce laboratoryjnej.", {"Poruszanie": "Strzałki klawiatury"});
+    setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Steruj mikro-sondą medyczną o wzmocnionej strukturze 3D. Zgromadź bio-kapsułki rozlokowane na siatce laboratoryjnej.", {"Poruszanie": "Strzałki klawiatury"});
 
     // =========================================================================
-    // 1. MINIGRA: SNAKE
+    // 1. MINIGRA: SNAKE (Więcej punktów: 8)
     // =========================================================================
     function playSnake() {
-        setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Wąż zyskał sferyczną formę 3D, cienie oraz świecące receptory wzrokowe. Prędkość uległa podwyższeniu.", {"Poruszanie": "Strzałki"});
+        setPanelInfo("Test 01", "Sonda Kapsułkowa 3D", "Wąż zyskał sferyczną formę 3D, cienie oraz świecące receptory wzrokowe. Musisz zdobyć 8 kapsułek.", {"Poruszanie": "Strzałki"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
-        gameDuration = 25; timeStart = Date.now(); gameActive = true;
+        gameDuration = 45; timeStart = Date.now(); gameActive = true;
 
         const grid = 20;
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
         let dx = grid, dy = 0;
-        let score = 0; const target = 3;
+        let score = 0; const target = 8; // ZWIĘKSZONO DO 8 PUNKTÓW
 
         function spawnCapsule() {
             let cols = Math.floor(canvas.width / grid);
@@ -474,40 +470,43 @@
     }
 
     // =========================================================================
-    // 2. MINIGRA: KABELKI
+    // 2. MINIGRA: KABELKI (Więcej połączeń: 6 zamiast 4)
     // =========================================================================
     function playWires() {
-        setPanelInfo("Test 02", "Mostkowanie Światłowodów", "Połącz porty generujące zbieżne sygnały biochemiczne.", {"Połączenie": "Przeciągaj Mysz"});
+        setPanelInfo("Test 02", "Mostkowanie Światłowodów", "Połącz porty generujące zbieżne sygnały. Zwiększono liczbę gniazd do 6.", {"Połączenie": "Przeciągaj Mysz"});
         canvas.style.display = 'block'; topBar.style.display = 'flex';
         updateProgressSymbols();
-        gameDuration = 12; timeStart = Date.now(); gameActive = true;
+        gameDuration = 20; timeStart = Date.now(); gameActive = true;
 
+        // ZWIĘKSZONO DO 6 KOLORÓW I KANJI
         const wireData = [
             { color: "#ff4757", kanji: "赤" }, { color: "#2ecc71", kanji: "緑" },
-            { color: "#1e90ff", kanji: "青" }, { color: "#ffa500", kanji: "橙" }
+            { color: "#1e90ff", kanji: "青" }, { color: "#ffa500", kanji: "橙" },
+            { color: "#9b59b6", kanji: "紫" }, { color: "#ff69b4", kanji: "桃" }
         ];
         let leftSide = [...wireData]; let rightSide = [...wireData];
         for (let i = leftSide.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [leftSide[i], leftSide[j]] = [leftSide[j], leftSide[i]]; }
         for (let i = rightSide.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rightSide[i], rightSide[j]] = [rightSide[j], rightSide[i]]; }
 
-        let leftNodes = leftSide.map((d, i) => ({x: 130, y: 110 + i*115, color: d.color, kanji: d.kanji, id: i}));
-        let rightNodes = rightSide.map((d, i) => ({x: 685, y: 110 + i*115, color: d.color, kanji: d.kanji, id: i}));
+        // Odpowiednio zagęszczony rozstaw Y na ekranie (skok o 75 zamiast 115)
+        let leftNodes = leftSide.map((d, i) => ({x: 130, y: 90 + i*78, color: d.color, kanji: d.kanji, id: i}));
+        let rightNodes = rightSide.map((d, i) => ({x: 685, y: 90 + i*78, color: d.color, kanji: d.kanji, id: i}));
         let connections = []; let selectedNode = null; let mouseX = 0, mouseY = 0;
 
         const getMousePos = e => { const rect = canvas.getBoundingClientRect(); return { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
         const mousedown = e => {
             let pos = getMousePos(e);
-            leftNodes.forEach(node => { if(Math.hypot(node.x - pos.x, node.y - pos.y) < 25 && !connections.some(c => c.l_id === node.id)) selectedNode = node; });
+            leftNodes.forEach(node => { if(Math.hypot(node.x - pos.x, node.y - pos.y) < 22 && !connections.some(c => c.l_id === node.id)) selectedNode = node; });
         };
         const mousemove = e => { let pos = getMousePos(e); mouseX = pos.x; mouseY = pos.y; };
         const mouseup = e => {
             if(!selectedNode) return; let pos = getMousePos(e);
             rightNodes.forEach(node => {
-                if(Math.hypot(node.x - pos.x, node.y - pos.y) < 25 && node.color === selectedNode.color) {
+                if(Math.hypot(node.x - pos.x, node.y - pos.y) < 22 && node.color === selectedNode.color) {
                     connections.push({l_id: selectedNode.id, r_id: node.id, color: node.color});
                 }
             });
-            selectedNode = null; if(connections.length === 4) { cleanup(); triggerGameSuccess(); }
+            selectedNode = null; if(connections.length === 6) { cleanup(); triggerGameSuccess(); }
         };
 
         canvas.addEventListener('mousedown', mousedown); canvas.addEventListener('mousemove', mousemove); window.addEventListener('mouseup', mouseup);
@@ -519,17 +518,17 @@
             ctx.fillStyle = "#0c101b";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            scoreUi.innerText = `Światłowody: ${connections.length} / 4 Połączeń`;
+            scoreUi.innerText = `Światłowody: ${connections.length} / 6 Połączeń`;
 
             connections.forEach(c => {
                 let l = leftNodes.find(n => n.id === c.l_id), r = rightNodes.find(n => n.id === c.r_id);
-                ctx.beginPath(); ctx.strokeStyle = c.color; ctx.lineWidth = 8;
+                ctx.beginPath(); ctx.strokeStyle = c.color; ctx.lineWidth = 6;
                 ctx.moveTo(l.x, l.y); ctx.lineTo(r.x, r.y); ctx.stroke();
                 ctx.lineWidth = 2; ctx.strokeStyle = "#ffffff"; ctx.stroke();
             });
             
             if(selectedNode) {
-                ctx.beginPath(); ctx.strokeStyle = selectedNode.color; ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.strokeStyle = selectedNode.color; ctx.lineWidth = 5;
                 ctx.moveTo(selectedNode.x, selectedNode.y); ctx.lineTo(mouseX, mouseY); ctx.stroke();
             }
 
@@ -537,23 +536,23 @@
             rightNodes.forEach(n => drawCircularPort(n, false));
 
             function drawCircularPort(node, isLeft) {
-                ctx.fillStyle = "#2c3e50"; ctx.beginPath(); ctx.arc(node.x, node.y, 28, 0, Math.PI*2); ctx.fill();
-                let portGrad = ctx.createRadialGradient(node.x, node.y, 15, node.x, node.y, 25);
+                ctx.fillStyle = "#2c3e50"; ctx.beginPath(); ctx.arc(node.x, node.y, 24, 0, Math.PI*2); ctx.fill();
+                let portGrad = ctx.createRadialGradient(node.x, node.y, 12, node.x, node.y, 22);
                 portGrad.addColorStop(0, '#0f1219'); portGrad.addColorStop(1, '#222836');
-                ctx.fillStyle = portGrad; ctx.beginPath(); ctx.arc(node.x, node.y, 24, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = portGrad; ctx.beginPath(); ctx.arc(node.x, node.y, 20, 0, Math.PI*2); ctx.fill();
 
                 let isConnected = isLeft ? connections.some(c=>c.l_id===node.id) : connections.some(c=>c.r_id===node.id);
                 ctx.fillStyle = isConnected ? node.color : "#475569";
-                ctx.beginPath(); ctx.arc(node.x + (isLeft ? -42 : 42), node.y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(node.x + (isLeft ? -36 : 36), node.y, 4, 0, Math.PI*2); ctx.fill();
 
-                ctx.fillStyle = node.color; ctx.font = "bold 22px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillStyle = node.color; ctx.font = "bold 18px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText(node.kanji, node.x, node.y);
             }
         }, 1000/60);
     }
 
     // =========================================================================
-    // 3. MINIGRA: PADDLE (CAŁKOWITY RESET STYLÓW NA STANDARDOWE KOLORY HEX)
+    // 3. MINIGRA: PADDLE
     // =========================================================================
     function playPaddle() {
         setPanelInfo("Test 03", "Ekstrakcja Bakterii", "Usuń struktury lipidowe wirusa. Paletka i klocki wymuszone sprzętowo.", {"Sterowanie": "Strzałki ← / →"});
@@ -605,53 +604,40 @@
             }
             if(allDestroyed) { triggerGameSuccess(); return; }
 
-            // NADPISANIE TŁA SOLIDNYM KOLOREM (BEZ ZMIENNYCH CSS)
             ctx.fillStyle = "#0c101b";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             scoreUi.innerText = "Dezynfekcja: Trwa oczyszczanie powierzchni matrycy";
 
-            // Granica pola gry
             ctx.lineWidth = 2; ctx.strokeStyle = "#1e293b"; 
             ctx.strokeRect(15, 55, canvas.width - 30, canvas.height - 70);
 
-            // Smuga piłki
             ballTrail.forEach((p, idx) => {
                 let opacity = (idx + 1) / ballTrail.length * 0.4;
                 ctx.fillStyle = "rgba(0, 255, 204, " + opacity + ")";
                 ctx.beginPath(); ctx.arc(p.x, p.y, ballRadius - 2, 0, Math.PI*2); ctx.fill();
             });
 
-            // RYSOWANIE PALETKI (Zawsze widoczny czysty neon-turkus HEX)
             ctx.fillStyle = "#00ffcc";
             ctx.fillRect(paddleX, paddleY, paddleW, paddleH);
-            
-            // Krawędź paletki dla efektu głębi
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(paddleX, paddleY, paddleW, 3);
 
-            // RYSOWANIE PIŁKI (Czysty biało-błękitny rdzeń)
             ctx.fillStyle = "#ffffff";
             ctx.beginPath(); ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2); ctx.fill();
             ctx.lineWidth = 2; ctx.strokeStyle = "#00b0ff"; ctx.stroke();
 
-            // RYSOWANIE CEGIEŁEK (Sztywne, ultra jaskrawe kody kolorów)
             for(let r=0; r<rows; r++) {
                 for(let c=0; c<cols; c++) {
                     let b = bricks[r][c];
                     if(b.status === 1) {
-                        // Rząd 1: Czerwony, Rząd 2: Turkusowy
                         let baseColor = (r === 0) ? "#ff4757" : "#00ffcc";
                         let lightColor = (r === 0) ? "#ff9b9b" : "#b3ffec";
-                        
                         ctx.fillStyle = baseColor;
                         ctx.fillRect(b.x, b.y, blockW, blockH);
-                        
-                        // Obwódka 3D
                         ctx.fillStyle = lightColor;
                         ctx.fillRect(b.x, b.y, blockW, 3);
                         ctx.fillRect(b.x, b.y, 3, blockH);
-
                         ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
                         ctx.fillRect(b.x, b.y + blockH - 3, blockW, 3);
                         ctx.fillRect(b.x + blockW - 3, b.y, 3, blockH);
@@ -662,7 +648,7 @@
     }
 
     // =========================================================================
-    // 4. MINIGRA: MATEMATYKA
+    // 4. MINIGRA: MATEMATYKA (Zwiększono do 7 zadań!)
     // =========================================================================
     function playMath() {
         setPanelInfo("Test 04", "Kalibracja Synaps", "Zatwierdź sumy kontrolne algorytmu synaptycznego.", {"Zatwierdzenie": "ENTER"});
@@ -671,6 +657,7 @@
         mathInput.value = ""; mathInput.focus();
 
         let currentTaskNum = 1; let currentAnswer = 0;
+        const totalTasks = 7; // ZWIĘKSZONO LICZBĘ ZADAŃ DO 7
 
         function generateTask() {
             const ops = ['+', '-', '*']; const op = ops[Math.floor(Math.random() * ops.length)];
@@ -678,7 +665,7 @@
             if(op === '+') { a = Math.floor(Math.random() * 45) + 15; b = Math.floor(Math.random() * 45) + 15; currentAnswer = a + b; }
             else if(op === '-') { a = Math.floor(Math.random() * 70) + 30; b = Math.floor(Math.random() * 25) + 5; currentAnswer = a - b; }
             else { a = Math.floor(Math.random() * 8) + 3; b = Math.floor(Math.random() * 7) + 3; currentAnswer = a * b; }
-            mathStage.innerText = `SEKWENCJA REKONFIGURACJI: ${currentTaskNum} / 3`; mathQuestion.innerText = `${a} ${op} ${b}`;
+            mathStage.innerText = `SEKWENCJA REKONFIGURACJI: ${currentTaskNum} / ${totalTasks}`; mathQuestion.innerText = `${a} ${op} ${b}`;
             gameDuration = 9; timeStart = Date.now();
         }
 
@@ -686,7 +673,7 @@
             if(e.key === 'Enter') {
                 if(parseInt(mathInput.value) === currentAnswer) {
                     currentTaskNum++; mathInput.value = "";
-                    if(currentTaskNum > 3) { window.removeEventListener('keydown', checkMathAnswer); triggerGameSuccess(); } else { generateTask(); }
+                    if(currentTaskNum > totalTasks) { window.removeEventListener('keydown', checkMathAnswer); triggerGameSuccess(); } else { generateTask(); }
                 } else { window.removeEventListener('keydown', checkMathAnswer); triggerGameOver("Destabilizacja rdzenia neuro-matrycy!"); }
             }
         };
